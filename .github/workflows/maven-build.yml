@@ -6,9 +6,48 @@ on:
       - '*'
 
 jobs:
-  build:
+  build_READY:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: sachin-smartbear/project_Shared
+          ref: master
 
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Build Ready with Maven
+        run: mvn clean install
+      # Add additional steps if needed for project V
+
+  build_SHARED:
+    runs-on: ubuntu-latest
+    needs: build_READY
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: sachin-smartbear/project_ready
+          ref: master
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Build R with Maven
+        run: mvn clean install
+      # Add additional steps if needed for project R
+
+  build_X:
+    runs-on: ubuntu-latest
+    needs: [build_READY, build_SHARED]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -19,5 +58,6 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Build with Maven
+      - name: Build X with Maven
         run: mvn clean install
+      # Add additional steps if needed for project X
