@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          repository: sachin-smartbear/project_Shared
+          repository: sachin-smartbear/project_ready
           ref: master
 
       - name: Set up JDK
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          repository: sachin-smartbear/project_ready
+          repository: sachin-smartbear/project_Shared
           ref: master
 
       - name: Set up JDK
