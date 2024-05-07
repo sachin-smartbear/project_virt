@@ -32,4 +32,12 @@
     </dependency>
 
 </dependencies>
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/owner/repository</url>
+        </repository>
+    </repositories>
+
 </project>
