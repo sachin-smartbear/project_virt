@@ -34,12 +34,12 @@
 </dependencies>
     <repositories>
         <repository>
-            <id>github</id>
+            <id>github-ready</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/sachin-smartbear/project_ready</url>
+            <url>https://maven.pkg.github.com/sachin-smartbear/project_ready,</url>
         </repository>
         <repository>
-            <id>github</id>
+            <id>github-shared</id>
             <name>GitHub Packages</name>
             <url>https://maven.pkg.github.com/sachin-smartbear/project_shared</url>
         </repository>
