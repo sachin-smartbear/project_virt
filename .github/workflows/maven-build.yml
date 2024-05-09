@@ -6,8 +6,25 @@ on:
       - '*'
 
 jobs:
-  build_READY:
+  check_and_build_READY:
     runs-on: ubuntu-latest
+    steps:
+      - name: Check if READY artifacts exist
+        run: |
+          PACKAGE_VERSION=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" -H "Accept: application/vnd.github.package-deletes-preview+json" https://api.github.com/repos/sachin-smartbear/project_ready/packages/maven/com/example/project_ready/maven-metadata.xml | grep -o '<latest>[^<]*' | grep -o '[^>]*$')
+          if [[ -z "$PACKAGE_VERSION" ]]; then
+            echo "READY artifacts not found, triggering build"
+            echo "::set-output name=build_ready::true"
+          else
+            echo "READY artifacts found"
+            echo "::set-output name=build_ready::false"
+          fi
+        id: check_ready
+
+  build_READY:
+    needs: check_and_build_READY
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_and_build_READY.outputs.build_ready == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,20 +38,38 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+
       - name: Build Ready with Maven
-        run:  mvn clean install deploy
+        run: mvn clean install deploy
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
-  build_SHARED:
+  check_and_build_SHARED:
     runs-on: ubuntu-latest
     needs: build_READY
+    steps:
+      - name: Check if SHARED artifacts exist
+        run: |
+          PACKAGE_VERSION=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" -H "Accept: application/vnd.github.package-deletes-preview+json" https://api.github.com/repos/sachin-smartbear/project_shared/packages/maven/com/example/project_shared/maven-metadata.xml | grep -o '<latest>[^<]*' | grep -o '[^>]*$')
+          if [[ -z "$PACKAGE_VERSION" ]]; then
+            echo "SHARED artifacts not found, triggering build"
+            echo "::set-output name=build_shared::true"
+          else
+            echo "SHARED artifacts found"
+            echo "::set-output name=build_shared::false"
+          fi
+        id: check_shared
+
+  build_SHARED:
+    needs: check_and_build_SHARED
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_and_build_SHARED.outputs.build_shared == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          repository: sachin-smartbear/project_Shared
+          repository: sachin-smartbear/project_shared
           ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,8 +97,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+
       - name: Build X with Maven
         run: mvn clean install
-      # Add additional steps if needed for project X
