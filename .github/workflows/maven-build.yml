@@ -24,7 +24,7 @@ jobs:
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build Ready with Maven
-        run:  mvn --batch-mode deploy
+        run:  mvn clean install deploy
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
@@ -47,7 +47,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Build SHARED with Maven
-        run: mvn deploy
+        run: mvn clean install deploy
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
