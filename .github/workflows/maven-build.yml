@@ -85,7 +85,7 @@ jobs:
 
   build_X:
     runs-on: ubuntu-latest
-    needs: [build_SHARED, build_READY]
+    needs: [build_SHARED]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
