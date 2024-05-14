@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  fetch_shared_commit_id:
+  fetch_shared_last_commit_id:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
 
   resolve_shared_dependency:
     runs-on: ubuntu-latest
-    needs: [fetch_shared_commit_id]
+    needs: [fetch_shared_last_commit_id]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -35,12 +35,12 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
       - name: Configure Maven settings
-        run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+        run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
 
       - name: resolve shared dependency
         id: resolve_shared_dependency
         run: |
-         mvn dependency:resolve -DincludeArtifactIds=project_shared -Dshared_version=SNAPSHOT-${{ needs.fetch_shared_commit_id.outputs.commit_id }}
+         mvn dependency:resolve -DincludeArtifactIds=project_shared -Dshared_version=-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}
          echo "::set-output name=status::success"
         continue-on-error: true
     outputs:
@@ -48,7 +48,7 @@ jobs:
 
   build_SHARED:
     runs-on: ubuntu-latest
-    needs: [resolve_shared_dependency, fetch_shared_commit_id]
+    needs: [resolve_shared_dependency, fetch_shared_last_commit_id]
     if: ${{ needs.resolve_shared_dependency.outputs.status != 'success'}}
     steps:
       - name: Checkout code
@@ -66,37 +66,14 @@ jobs:
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build SHARED with Maven
-        run: mvn deploy -Dcommit_id=-${{ needs.fetch_shared_commit_id.outputs.commit_id }}
+        run: mvn deploy -Dcommit_id=-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
-#  build_READY:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#        with:
-#          repository: sachin-smartbear/project_ready
-#          ref: master
-#          token: ${{ secrets.TOKEN }}
-#
-#      - name: Set up JDK
-#        uses: actions/setup-java@v2
-#        with:
-#          java-version: '17'
-#          distribution: 'adopt'
-#      - name: Configure Maven settings
-#        run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
-#      - name: Build Ready with Maven
-#        run:  mvn clean install deploy
-#        env:
-#          GITHUB_USERNAME: ${{ secrets.USERNAME }}
-#          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-
-  build_X:
+  build_VIRT:
     runs-on: ubuntu-latest
-    needs: [build_SHARED, fetch_shared_commit_id]
+    needs: [build_SHARED, fetch_shared_last_commit_id]
     if: ${{ !failure() }}
     steps:
       - name: Checkout code
@@ -108,6 +85,5 @@ jobs:
           distribution: 'adopt'
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
-      - name: Build X with Maven
-        run: mvn clean install -Dshared_version=SNAPSHOT-${{ needs.fetch_shared_commit_id.outputs.commit_id }}
-      # Add additional steps if needed for project X
+      - name: Build VIRT with Maven
+        run: mvn clean install -Dshared_version=-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}
