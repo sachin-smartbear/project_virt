@@ -22,7 +22,7 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
       - name: Configure Maven settings
-        run: echo "<settings><servers><server><id>github</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+        run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build Ready with Maven
         run:  mvn clean install deploy
         env:
@@ -49,7 +49,7 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
       - name: Configure Maven settings
-        run: echo "<settings><servers><server><id>github</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+        run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build SHARED with Maven
         run: mvn clean install deploy -Dcommit_id=-${{ steps.last_commit.outputs.commit_id }}
         env:
