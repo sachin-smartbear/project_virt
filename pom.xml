@@ -46,5 +46,13 @@
             <url>https://maven.pkg.github.com/sachin-smartbear/project_shared</url>
         </repository>
     </repositories>
-
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.6.1</version> <!-- Use the latest version -->
+        </plugin>
+    </plugins>
+</build>
 </project>
