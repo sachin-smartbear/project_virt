@@ -6,24 +6,6 @@ on:
       - '*'
 
 jobs:
-  check_changes:
-    runs-on: ubuntu-latest
-    outputs:
-      r_changed: ${{ steps.r_changes.outputs.changed }}
-      ts_changed: ${{ steps.ts_changes.outputs.changed }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check R changes
-        id: r_changes
-        run: |
-          git diff --quiet HEAD~1..HEAD sachin-smartbear/project_ready || echo "::set-output name=changed::true"
-
-      - name: Check TS changes
-        id: ts_changes
-        run: |
-          git diff --quiet HEAD~1..HEAD sachin-smartbear/project_Shared || echo "::set-output name=changed::true"
   build_READY:
     runs-on: ubuntu-latest
     if: needs.check_changes.outputs.r_changed == 'true'
@@ -40,6 +22,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+
       - name: Build Ready with Maven
         run:  mvn clean install deploy
         env:
@@ -48,8 +31,6 @@ jobs:
 
   build_SHARED:
     runs-on: ubuntu-latest
-    if: needs.check_changes.outputs.ts_changed == 'true'
-    needs: build_READY
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -58,6 +39,10 @@ jobs:
           ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get last commit ID
+        id: last_commit
+        run: echo "::set-output name=commit_id::$(git log -1 --pretty=format:%H)"
+
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -65,7 +50,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Build SHARED with Maven
-        run: mvn clean install deploy
+        run: mvn clean install deploy -Dcommit_id=-${{ steps.last_commit.outputs.commit_id }}
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
@@ -83,5 +68,5 @@ jobs:
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build X with Maven
-        run: mvn clean install
+        run: mvn clean install -Dshared_version=-${{ steps.build_SHARED.last_commit.outputs.commit_id }}
       # Add additional steps if needed for project X
