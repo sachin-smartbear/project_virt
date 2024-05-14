@@ -29,8 +29,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
       - name: Configure Maven settings
-        run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+        run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
+
       - name: resolve shared dependency
         run: mvn dependency:resolve -DincludeArtifactIds=project_shared -Dshared_version=SNAPSHOT-${{ needs.fetch_shared_commit_id.outputs.commit_id }}
         continue-on-error: true
