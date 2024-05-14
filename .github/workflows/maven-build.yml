@@ -96,6 +96,8 @@ jobs:
 
   build_X:
     runs-on: ubuntu-latest
+    needs: [build_SHARED]
+    if: ${{  success() || cancelled() }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
