@@ -55,6 +55,8 @@ jobs:
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
+    outputs:
+      commit_id: ${{ steps.last_commit.outputs.commit_id }}
 
   build_X:
     runs-on: ubuntu-latest
@@ -70,5 +72,5 @@ jobs:
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-ready</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build X with Maven
-        run: mvn clean install -Dshared_version=SNAPSHOT-${{ steps.build_SHARED.outputs.commit_id }}
+        run: mvn clean install -Dshared_version=SNAPSHOT-${{ needs.build_SHARED.outputs.commit_id }}
       # Add additional steps if needed for project X
