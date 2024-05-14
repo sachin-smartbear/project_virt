@@ -45,6 +45,7 @@ jobs:
         continue-on-error: true
     outputs:
         status: ${{ steps.resolve_shared_dependency.outputs.status }}
+
   build_SHARED:
     runs-on: ubuntu-latest
     needs: [resolve_shared_dependency, fetch_shared_commit_id]
@@ -62,6 +63,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+      - name: print previous build status
+        run: echo "Commit ID is ${{ needs.resolve_shared_dependency.outputs.status }}"
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build SHARED with Maven
