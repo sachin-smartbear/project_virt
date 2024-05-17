@@ -6,6 +6,17 @@ on:
       - '*'
 
 jobs:
+  build_ready:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout shared-lib
+      uses: actions/checkout@v2
+      with:
+        repository: sachin-smart/project_ready
+        ref: main
+    - name: Run Shared Workflow
+      uses: ./project_ready/.github/workflows/ready_build.yml
+
   fetch_shared_last_commit_id:
     runs-on: ubuntu-latest
     steps:
