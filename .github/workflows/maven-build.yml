@@ -14,6 +14,8 @@ jobs:
       with:
         repository: sachin-smartbear/project_ready
         ref: main
+        token: ${{ secrets.TOKEN }}
+
     - name: Run Shared Workflow
       uses: ./project_ready/.github/workflows/ready_build.yml
 
