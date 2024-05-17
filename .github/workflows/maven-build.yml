@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Test
         run: |
-          curl -X POST https://api.github.com/sachin-smartbear/project_Shared/dispatches \
+          curl -X POST https://api.github.com/sachin-smartbear/project_ready/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.TOKEN }} \
           --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
