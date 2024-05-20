@@ -5,17 +5,6 @@ on:
     branches:
       - '*'
 
-jobs:
-  build_ready:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Test
-        run: |
-          curl -X POST https://api.github.com/sachin-smartbear/project_ready/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u ${{ secrets.TOKEN }} \
-          --data '{"event_type": "start-ready_build"}'
-      - uses: actions/checkout@v3
   get_version:
     runs-on: ubuntu-latest
     steps:
@@ -83,7 +72,10 @@ jobs:
       - name: Configure Maven settings
         run: echo "<settings><servers><server><id>github-shared</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > $HOME/.m2/settings.xml
       - name: Build SHARED with Maven
-        run: mvn deploy -Dcommit_id=-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}
+        run: |
+         current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+         mvn versions:set -DnewVersion="${current_version}-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}" deploy
+         mvn versions:set -DnewVersion=${current_version}
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
