@@ -16,6 +16,12 @@ jobs:
           -u ${{ secrets.TOKEN }} \
           --data '{"event_type": "start-ready_build"}'
       - uses: actions/checkout@v3
+  get_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout
+      - uses: actions/checkout@v3
 
   fetch_shared_last_commit_id:
     runs-on: ubuntu-latest
