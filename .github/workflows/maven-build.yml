@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - '*'
-
+jobs:
   get_version:
     runs-on: ubuntu-latest
     steps:
