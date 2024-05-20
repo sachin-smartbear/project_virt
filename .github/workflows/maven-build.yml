@@ -8,9 +8,12 @@ jobs:
   get_version:
     runs-on: ubuntu-latest
     steps:
-      - name: Test
-        run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout
-      - uses: actions/checkout@v3
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+            token: ${{ secrets.TOKEN }}
+            repository: sachin-smartbear/project_ready
+            event-type: start-ready_build
 
   fetch_shared_last_commit_id:
     runs-on: ubuntu-latest
