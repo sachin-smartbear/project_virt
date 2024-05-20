@@ -74,7 +74,8 @@ jobs:
       - name: Build SHARED with Maven
         run: |
          current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-         mvn versions:set -DnewVersion="${current_version}-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}" deploy
+         mvn versions:set -DnewVersion="${current_version}-${{ needs.fetch_shared_last_commit_id.outputs.commit_id }}"
+         mvn deploy
          mvn versions:set -DnewVersion=${current_version}
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
